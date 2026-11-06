@@ -22,10 +22,10 @@ class FirebaseRepository {
 
   // fetch all todo
   static Stream<QuerySnapshot<Map<String, dynamic>>> fetchAllTodo(){
-    return mFireStore.collection(collectionToDo).snapshots();
+    return mFireStore.collection(collectionToDo).orderBy("isCompleted").orderBy("assignedAt", descending: true).snapshots();
   }
 
-  // update todo
+  // update todoMark
   static void markTodoStatus(String todoId, bool status){
 
     var completedAt = "";
@@ -42,6 +42,31 @@ class FirebaseRepository {
           "completedAt" : completedAt
         }
     );
+  }
+
+  // update todo
+  static void updateTodo({
+    required String todoId,
+    required String updatedTitle,
+    required String updatedDesc,
+    required int priority,
+    required String assignedAt
+  }){
+
+    mFireStore
+        .collection(collectionToDo)
+        .doc(todoId)
+        .update({
+      "title" : updatedTitle,
+      "desc" : updatedDesc,
+      "priority" : priority,
+      "assignedAt" : assignedAt,
+    });
+  }
+
+  // delete todo
+  static void deleteTodo({required String todoId}){
+    mFireStore.collection(collectionToDo).doc(todoId).delete();
   }
 
 }

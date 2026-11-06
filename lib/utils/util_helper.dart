@@ -9,7 +9,7 @@ TextStyle mTextStyle12({
       fontSize: 12,
       fontWeight: mFontWeight,
       color: mColor,
-      fontFamily: 'fontMainPlay'
+      //fontFamily: 'fontMainPlay'
   );
 }
 
@@ -21,7 +21,7 @@ TextStyle mTextStyle16({
     fontSize: 16,
     fontWeight: mFontWeight,
     color: mColor,
-    fontFamily: 'fontMainPlay'
+    //fontFamily: 'fontMainPlay'
   );
 }
 
@@ -34,6 +34,6 @@ TextStyle mTextStyle25({
     fontSize: 25,
     fontWeight: mFontWeight,
     color: mColor,
-    fontFamily: 'fontMainPlay'
+    //fontFamily: 'fontMainPlay'
   );
 }

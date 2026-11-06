@@ -14,13 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>{
-  List<TodoModel> listTodo = [
-    TodoModel(
-      title: "Notes app",
-      desc: "Complete with Firebase",
-      assignedAt: DateTime.now().microsecondsSinceEpoch.toString(),
-    ),
-  ];
+  List<TodoModel> listTodo = [];
   var titleController = TextEditingController();
   var descController = TextEditingController();
   List<String> listPriority = ["High", "Medium", "Low"];
@@ -73,90 +67,95 @@ class _HomePageState extends State<HomePage>{
                   itemCount: listTodo.length,
                   itemBuilder: (_, index) {
 
-                    DateFormat df = DateFormat.yMMMd();
+                    DateFormat df = DateFormat.yMMMd().add_jm();
+                    //DateFormat tf = DateFormat.Hms();
 
-                    var assignedTime = df.format(DateTime.fromMillisecondsSinceEpoch(int.parse(listTodo[index].assignedAt)));
+                    String assignedTime = df.format(DateTime.fromMillisecondsSinceEpoch(int.parse(listTodo[index].assignedAt)));
                     var completedTime = listTodo[index].completedAt != "" ? df.format(DateTime.fromMillisecondsSinceEpoch(int.parse(listTodo[index].completedAt))) : "";
 
-                    return Card(
-                      color: getBackgroundColor(listTodo[index].priority),
-                      elevation: 7,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)
-                      ),
-                      child: Column(
-                        children: [
-                          CheckboxListTile(
-                            controlAffinity: ListTileControlAffinity.leading,
-                            side: BorderSide(color: Colors.white, width: 2),
-                            checkColor: Colors.white,
-                            value: listTodo[index].isCompleted,
-                            onChanged: (value) {
-                              //listTodo[index].isCompleted = value!;
-                              FirebaseRepository.markTodoStatus(listTodo[index].todoId!, value!);
-
-                              /*setState(() {
-
-                              });*/
-                            },
-                            title: Text(listTodo[index].title, style: mTextStyle16(mColor: Colors.white).copyWith(
-                                decoration: listTodo[index].isCompleted
-                                    ? TextDecoration.lineThrough
-                                    : TextDecoration.none,
-                                decorationThickness: 5,
-                              decorationColor: Colors.white
-
-                            ),),
-                            subtitle: Text(listTodo[index].desc, style: mTextStyle12(mColor: Colors.white).copyWith(
-                                decoration: listTodo[index].isCompleted
-                                    ? TextDecoration.lineThrough
-                                    : TextDecoration.none,
-                                decorationThickness: 3,
+                    return InkWell(
+                      onTap: (){
+                        showModalBottomSheet(context: context, builder: (context){
+                          return bottomSheetContent(context: context, isUpdate: true, index: index);
+                        });
+                      },
+                      child: Card(
+                        color: getBackgroundColor(listTodo[index].priority),
+                        elevation: 7,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)
+                        ),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              leading: Checkbox(
+                                checkColor: Colors.white,
+                                value: listTodo[index].isCompleted,
+                                onChanged: (value) {
+                                  FirebaseRepository.markTodoStatus(listTodo[index].todoId!, value!);
+                                },),
+                              title: Text(listTodo[index].title, style: mTextStyle16(mColor: Colors.white).copyWith(
+                                  decoration: listTodo[index].isCompleted
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
+                                  decorationThickness: 5,
                                 decorationColor: Colors.white
 
-                            ),),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 11),
-                            child: Row(
-                              children: [
-                                RichText(text:
-                                TextSpan(
-                                    text: "Assigned at: ",
-                                  style: mTextStyle12(mColor: Colors.white, mFontWeight: FontWeight.bold),
-                                  children: [
-                                    TextSpan(
-                                        text: assignedTime,
-                                    style: mTextStyle12(mColor: Colors.white,))]
-                                )
-                                )
-                              ],
+                              ),),
+                              subtitle: Text(listTodo[index].desc, style: mTextStyle12(mColor: Colors.white).copyWith(
+                                  decoration: listTodo[index].isCompleted
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
+                                  decorationThickness: 3,
+                                  decorationColor: Colors.white
+
+                              ),),
+                              trailing: IconButton(onPressed: (){
+                                FirebaseRepository.deleteTodo(todoId: listTodo[index].todoId!);
+                              }, icon: Icon(CupertinoIcons.delete, size: 20,)),
                             ),
-                          ),
-                          completedTime != ""
-                              ? Padding(
-                            padding: const EdgeInsets.only(
-                                left: 16, right: 16, bottom: 11),
-                            child: Row(
-                              children: [
-                                RichText(text:
-                                TextSpan(
-                                    text: "Completed at: ",
-                                    style: mTextStyle12(mColor: Colors.white,
-                                        mFontWeight: FontWeight.bold),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 11),
+                              child: Row(
+                                children: [
+                                  RichText(text:
+                                  TextSpan(
+                                      text: "Assigned at: ",
+                                    style: mTextStyle12(mColor: Colors.white, mFontWeight: FontWeight.bold),
                                     children: [
                                       TextSpan(
-                                          text: completedTime,
-                                          style: mTextStyle12(
-                                            mColor: Colors.white,))
-                                    ]
-                                )
-                                )
-                              ],
+                                          text: assignedTime,
+                                      style: mTextStyle12(mColor: Colors.white,))]
+                                  )
+                                  )
+                                ],
+                              ),
                             ),
-                          )
-                              : Container(),
-                        ],
+                            completedTime != ""
+                                ? Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 16, right: 16, bottom: 11),
+                              child: Row(
+                                children: [
+                                  RichText(text:
+                                  TextSpan(
+                                      text: "Completed at: ",
+                                      style: mTextStyle12(mColor: Colors.white,
+                                          mFontWeight: FontWeight.bold),
+                                      children: [
+                                        TextSpan(
+                                            text: completedTime,
+                                            style: mTextStyle12(
+                                              mColor: Colors.white,))
+                                      ]
+                                  )
+                                  )
+                                ],
+                              ),
+                            )
+                                : Container(),
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -176,7 +175,7 @@ class _HomePageState extends State<HomePage>{
                           showModalBottomSheet(
                             context: context,
                             builder: (_) {
-                              return bottomSheetContent(context);
+                              return bottomSheetContent(context: context);
                             },
                           );
                         },
@@ -195,7 +194,7 @@ class _HomePageState extends State<HomePage>{
           showModalBottomSheet(
             context: context,
             builder: (_) {
-              return bottomSheetContent(context);
+              return bottomSheetContent(context: context);
             },
           );
         },
@@ -219,7 +218,23 @@ class _HomePageState extends State<HomePage>{
     }
   }
 
-  Widget bottomSheetContent(BuildContext context) {
+  Widget bottomSheetContent({
+    required BuildContext context,
+    bool isUpdate = false,
+    int index = -1
+  }) {
+    titleController.clear();
+    descController.clear();
+
+    if(isUpdate){
+      titleController.text = listTodo[index].title;
+      descController.text = listTodo[index].desc;
+      selectedPriority = listPriority[listTodo[index].priority-1];
+    } else {
+      selectedPriority = "High";
+    }
+
+
     return SingleChildScrollView(
       child: Container(
         margin: EdgeInsets.only(
@@ -248,8 +263,7 @@ class _HomePageState extends State<HomePage>{
                   ),
                 ),
                 SizedBox(width: 5),
-                Text(
-                  "Add ToDo",
+                Text(isUpdate ? "Update ToDO" : "Add ToDo",
                   style: mTextStyle16(
                     mFontWeight: FontWeight.bold,
                     mColor: Colors.blue,
@@ -266,8 +280,8 @@ class _HomePageState extends State<HomePage>{
                   borderRadius: BorderRadius.circular(11),
                   borderSide: BorderSide(color: Colors.blue),
                 ),
-                label: Text('Title', style: mTextStyle16(mColor: Colors.blue)),
-                hintText: 'Enter title here',
+                label: Text(isUpdate ? "Updated Title" :'Title', style: mTextStyle16(mColor: Colors.blue)),
+                hintText: isUpdate ? "Enter updated title here" :'Enter title here',
                 hintStyle: mTextStyle16(mColor: Colors.grey),
               ),
             ),
@@ -280,8 +294,8 @@ class _HomePageState extends State<HomePage>{
                   borderRadius: BorderRadius.circular(11),
                   borderSide: BorderSide(color: Colors.blue),
                 ),
-                label: Text('Desc', style: mTextStyle16(mColor: Colors.blue)),
-                hintText: 'Enter desc here',
+                label: Text(isUpdate ? "Updated Desc" : 'Desc', style: mTextStyle16(mColor: Colors.blue)),
+                hintText: isUpdate ? "Enter updated desc here" :'Enter desc here',
                 hintStyle: mTextStyle16(mColor: Colors.grey),
               ),
             ),
@@ -298,6 +312,8 @@ class _HomePageState extends State<HomePage>{
                 Icons.arrow_drop_down_circle_rounded,
                 color: Colors.blue,
               ),
+              initialSelection: isUpdate ? listPriority[listTodo[index].priority-1] : null,
+
               dropdownMenuEntries: listPriority
                   .map(
                     (priority) => DropdownMenuEntry(
@@ -312,21 +328,34 @@ class _HomePageState extends State<HomePage>{
               )
                   .toList(),
             ),
+
+
             SizedBox(height: 11),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                MyOutlinedCustomBtn(title: "Add", onPressed: () {
+                MyOutlinedCustomBtn(title: isUpdate ? "Update" :"Add", onPressed: () {
 
                   //add the Todo
-                  var todoModel = TodoModel(title: titleController.text,
+                  var todoModel = TodoModel(
+                    title: titleController.text,
                     desc: descController.text,
                     priority: selectedPriority == "High" ? 1 : selectedPriority == "Medium" ? 2 : 3,
                     assignedAt: DateTime.now().millisecondsSinceEpoch.toString(),
 
                   );
 
-                  FirebaseRepository.addTodo(todoModel);
+                  if(isUpdate){
+                    FirebaseRepository.updateTodo(
+                        todoId: listTodo[index].todoId!,
+                        updatedTitle: titleController.text,
+                        updatedDesc: descController.text,
+                        priority: selectedPriority == "High" ? 1 : selectedPriority == "Medium" ? 2 : 3,
+                        assignedAt: DateTime.now().millisecondsSinceEpoch.toString()
+                    );
+                  } else {
+                    FirebaseRepository.addTodo(todoModel);
+                  }
 
                   Navigator.pop(context);
 
